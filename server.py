@@ -36,7 +36,11 @@ FORM_HTML = dedent("""
             <label>Profesión: <input name="profesión" required></label><br>
             <label>Bio:    <input name="bio"    required></label><br>
             <label>Color favorito: <input name="color" value="#3498db" required></label><br>
-            <label>Imagen: <input name="imagen" type="file" required></label><br>
+            <label>Imagen: <input name="imagen" value="https://picsum.photos/200" required></label><br>
+            <label>Red1: <input name="red1" required></label><br>
+            <label>Red2: <input name="red2" required></label><br>
+            <label>Color de fondo: <input name="backgroundcolor" value="#7FFFD4" required></label><br> 
+            <label>Color de texto: <input name="textcolor" value="#572364" required></label><br>
             
             <select name="habilidades" id="hab">
             <option value="">Selecciona una habilidad</option>
@@ -45,7 +49,7 @@ FORM_HTML = dedent("""
             <option value="leer">Leer</option>
             </select><br>
             <label>
-            <button>Crear tarjeta</button>
+            <button>Crear tarjeta 🪪 </button>
         </form>
     </body>
     </html>
@@ -62,14 +66,17 @@ CARD_HTML = dedent("""
         <title>🪪 Tarjeta de {nombre}</title>
         <link rel="stylesheet" href="/static/style.css">
         <style>
+        
             .card {{
+                
                 padding: 2rem 3rem;
                 border-radius: 1rem;
                 box-shadow: 0 10px 25px rgba(0,0,0,.1);
                 text-align: center;
-                background: white;
+                background: {backgroundcolor};
                 max-width: 320px;
                 margin: 4rem auto;
+                color: {textcolor}
             }}
             h1 {{ color: {color}; margin: 0 0 .5rem }}
         </style>
@@ -77,11 +84,12 @@ CARD_HTML = dedent("""
     <body>
         <div class="card">
             <h1>{nombre}</h1>
-            <p>{edad}</p>
+            <p>{edad}<i class="fa-solid fa-house"></i></p>
             <p>{bio}</p>
-            <p>{profesión}</p>
             <p>{hab}</p>
-            <img src={imagen} alt="a" height="720" width="500"/>
+            <p>{red1}</p>
+            <p>{red2}</p>
+            <img src="https://picsum.photos/200" alt="Foto de perfil">
             <p><a href="/">← Crear otra</a></p>
         </div>
     </body>
@@ -110,7 +118,7 @@ class TarjetaHandler(SimpleHTTPRequestHandler):
         if parsed.path == "/":
             self._send_html(FORM_HTML)
         # Si la ruta es "/tarjeta", generamos una tarjeta con los datos recibidos
-        elif parsed.path == "/tarjeta":
+        elif parsed.path == "/tarjeta": 
             # Obtenemos los parámetros de la URL (query string)
             datos = up.parse_qs(parsed.query)
             
@@ -124,9 +132,12 @@ class TarjetaHandler(SimpleHTTPRequestHandler):
             color  = html.escape(datos.get("color",  ["#000000"])[0])
             hab = html.escape(datos.get("habilidades", ["-"])[0])
             imagen = html.escape(datos.get("imagen", ["-"])[0])
-            
+            red1 = html.escape(datos.get("red1", ["-"])[0])
+            red2 = html.escape(datos.get("red2", ["-"])[0])
+            backgroundcolor  = html.escape(datos.get("backgroundcolor",  ["#000000"])[0])
+            textcolor= html.escape(datos.get("textcolor", ["#00000"])[0])
             # Generamos el HTML de la tarjeta con los datos del usuario
-            self._send_html(CARD_HTML.format(nombre=nombre, bio=bio, color=color, edad=edad, profesión=profesión, hab=hab, imagen=imagen ))
+            self._send_html(CARD_HTML.format(nombre=nombre, bio=bio, color=color, edad=edad, profesión=profesión, hab=hab, imagen=imagen, red1=red1, red2=red2,backgroundcolor=backgroundcolor, textcolor=textcolor))
         else:
             # Para cualquier otra ruta, intentamos servir archivos estáticos o devolvemos 404
             super().do_GET()
